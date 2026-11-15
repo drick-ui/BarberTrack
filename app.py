@@ -3,6 +3,7 @@ import os
 import re
 import time
 import uuid
+from datetime import datetime
 from functools import wraps
 
 import pymysql
@@ -71,8 +72,17 @@ def inject_globals():
                 values["v"] = int(os.path.getmtime(path))
         return url_for(endpoint, **values)
 
+    def vendor_exists(local):
+        return os.path.isfile(os.path.join(app.static_folder, "vendor", *local.split("/")))
+
+    def vendor(local, cdn_url):
+        """Use the copy saved by download_assets.py (works offline); otherwise fall back to the CDN."""
+        if vendor_exists(local):
+            return versioned_url_for("static", filename=f"vendor/{local}")
+        return cdn_url
+
     return {"current_user": getattr(g, "user", None), "registration_open": owner_missing,
-            "url_for": versioned_url_for}
+            "url_for": versioned_url_for, "vendor": vendor, "vendor_exists": vendor_exists}
 
 
 def login_required(view):
@@ -316,9 +326,16 @@ def logout():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html",
+    now = datetime.now()
+    greeting = "Good morning" if now.hour < 12 else "Good afternoon" if now.hour < 18 else "Good evening"
+    queue = QueueEntry.today()
+    week = Transaction.sales_by_day(7)
+    return render_template("dashboard.html", now=now, greeting=greeting,
                            today=Transaction.summary("day"),
                            month=Transaction.summary("month"),
+                           week=week, week_total=sum(d["sales"] for d in week),
+                           queue_counts={"waiting": sum(e.status == "Waiting" for e in queue),
+                                         "serving": sum(e.status == "Serving" for e in queue)},
                            barbers=Transaction.per_barber_today(),
                            recent=Transaction.all()[:8])
 

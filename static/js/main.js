@@ -64,4 +64,33 @@ document.addEventListener("DOMContentLoaded", () => {
     topBarber.addEventListener("change", fillWaiting);
     fillWaiting();
   }
+
+  // Search box above a table: hides the rows that do not match what was typed.
+  document.querySelectorAll("[data-table-filter]").forEach(input => {
+    const table = document.querySelector(input.dataset.tableFilter);
+    if (!table) return;
+    input.addEventListener("input", () => {
+      const q = input.value.trim().toLowerCase();
+      const rows = table.querySelectorAll("tbody tr[data-row]");
+      rows.forEach(row => { row.hidden = q !== "" && !row.textContent.toLowerCase().includes(q); });
+      const none = table.querySelector("[data-no-results]");
+      if (none) none.hidden = q === "" || table.querySelectorAll("tbody tr[data-row]:not([hidden])").length > 0;
+    });
+  });
+
+  // Show / hide password buttons.
+  document.querySelectorAll("[data-toggle-password]").forEach(button => {
+    button.addEventListener("click", () => {
+      const input = document.querySelector(button.dataset.togglePassword);
+      if (!input) return;
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      button.querySelector("i").className = show ? "bi bi-eye-slash" : "bi bi-eye";
+    });
+  });
+
+  // Success and info messages disappear by themselves.
+  document.querySelectorAll(".alert-success, .alert-info").forEach(alert => {
+    setTimeout(() => { if (window.bootstrap) bootstrap.Alert.getOrCreateInstance(alert).close(); }, 6000);
+  });
 });

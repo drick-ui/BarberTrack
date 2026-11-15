@@ -1,4 +1,6 @@
 """Shop entities: Barber, Service, Product, Transaction and QueueEntry."""
+from datetime import date, timedelta
+
 import pymysql
 
 from .base import BaseModel, Database
@@ -130,6 +132,25 @@ class Transaction(BaseModel):
             "SELECT COUNT(*) AS cuts, COALESCE(SUM(amount),0) AS sales, "
             "COALESCE(SUM(commission),0) AS commission, COALESCE(SUM(shop_share),0) AS shop "
             f"FROM transactions WHERE {cond}", one=True)
+
+    @staticmethod
+    def sales_by_day(days=7):
+        """Sales for each of the last `days` days (oldest first), used by the dashboard chart."""
+        today = date.today()
+        start = today - timedelta(days=days - 1)
+        rows = Database.query(
+            "SELECT DATE(txn_date) AS day, COALESCE(SUM(amount), 0) AS sales FROM transactions "
+            "WHERE DATE(txn_date) >= %s GROUP BY DATE(txn_date)", (start.isoformat(),))
+        totals = {str(r["day"])[:10]: float(r["sales"]) for r in rows}
+        series = []
+        for i in range(days):
+            day = start + timedelta(days=i)
+            series.append({"date": day, "label": day.strftime("%a"), "full": day.strftime("%b %d"),
+                           "sales": totals.get(day.isoformat(), 0.0), "is_today": day == today})
+        biggest = max((d["sales"] for d in series), default=0) or 1
+        for d in series:
+            d["pct"] = round(d["sales"] / biggest * 100, 1)
+        return series
 
     @staticmethod
     def per_barber_today():

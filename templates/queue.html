@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Queue{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h3 mb-0">Queue</h1>
+<div class="page-header">
+  <div><h1 class="page-title"><i class="bi bi-people me-2 text-muted"></i>Queue</h1>
+    <p class="page-sub">Today &middot; {{ waiting|length }} waiting &middot; {{ serving|length }} being served</p></div>
 </div>
 
-<div class="card shadow-sm mb-4"><div class="card-body">
-  <h2 class="h6 mb-3">Add walk-in customer</h2>
+<div class="card mb-4"><div class="card-body">
+  <h2 class="h6 mb-3"><i class="bi bi-person-plus me-2 text-muted"></i>Add walk-in customer</h2>
   <form method="post" action="{{ url_for('queue_add') }}" class="row g-2">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="col-md-4"><input class="form-control" name="customer_name" placeholder="Customer name (optional)" maxlength="100"></div>
@@ -18,51 +19,54 @@
       <option value="">Any barber</option>
       {% for b in barbers %}<option value="{{ b.id }}">{{ b.name }}</option>{% endfor %}
     </select></div>
-    <div class="col-md-2"><button class="btn btn-brand w-100">Add to queue</button></div>
+    <div class="col-md-2"><button class="btn btn-brand w-100"><i class="bi bi-plus-lg me-1"></i>Add</button></div>
   </form>
 </div></div>
 
 <div class="row g-4">
   <div class="col-lg-6">
-    <div class="card shadow-sm"><div class="card-header">Now serving ({{ serving|length }})</div>
-    <div class="table-responsive"><table class="table align-middle mb-0">
-      <tbody>
+    <div class="card h-100"><div class="card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-scissors me-2 text-muted"></i>Now serving</span><span class="status-badge status-serving">{{ serving|length }}</span></div>
       {% for e in serving %}
-      <tr>
-        <td><span class="queue-tag">#{{ '%03d'|format(e.queue_no) }}</span></td>
-        <td>{{ e.customer_name or 'Walk-in' }}<div class="small text-muted">{{ e.service_name or '' }} &middot; {{ e.barber_name or '' }}</div></td>
-        <td class="text-end text-nowrap">
+      <div class="queue-item">
+        <span class="queue-tag">#{{ '%03d'|format(e.queue_no) }}</span>
+        <div class="queue-info">
+          <div class="fw-semibold">{{ e.customer_name or 'Walk-in' }}</div>
+          <div class="small text-muted">{{ e.service_name or 'No service chosen' }} &middot; {{ e.barber_name or '' }}</div>
+        </div>
+        <div class="queue-actions">
           {% if e.transaction_id %}
-            <span class="badge text-bg-success me-1">Paid &#8369;{{ '{:,.2f}'.format(e.paid_amount) }}</span>
+            <span class="status-badge status-paid"><i class="bi bi-check-circle me-1"></i>Paid &#8369;{{ '{:,.2f}'.format(e.paid_amount) }}</span>
           {% else %}
-            <a class="btn btn-sm btn-brand" href="{{ url_for('transactions_add', barber_id=e.barber_id, service_id=e.service_id, customer_name=e.customer_name, queue_id=e.id) }}">Record payment</a>
+            <a class="btn btn-sm btn-brand" href="{{ url_for('transactions_add', barber_id=e.barber_id, service_id=e.service_id, customer_name=e.customer_name, queue_id=e.id) }}"><i class="bi bi-cash-coin me-1"></i>Record payment</a>
           {% endif %}
           <form class="d-inline" method="post" action="{{ url_for('queue_status', entry_id=e.id) }}"
                 {% if not e.transaction_id %}title="Record the payment first"{% endif %}>
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="status" value="Done">
-            <button class="btn btn-sm btn-outline-success" {% if not e.transaction_id %}disabled{% endif %}>Done</button>
+            <button class="btn btn-sm btn-outline-success" {% if not e.transaction_id %}disabled{% endif %}><i class="bi bi-check2 me-1"></i>Done</button>
           </form>
-        </td>
-      </tr>
-      {% else %}<tr><td class="text-center text-muted py-4">No one is being served.</td></tr>{% endfor %}
-      </tbody>
-    </table></div></div>
+        </div>
+      </div>
+      {% else %}<div class="empty-state"><i class="bi bi-person-check"></i>No one is being served.</div>{% endfor %}
+    </div>
   </div>
 
   <div class="col-lg-6">
-    <div class="card shadow-sm"><div class="card-header">Waiting ({{ waiting|length }})</div>
-    <div class="table-responsive"><table class="table align-middle mb-0">
-      <tbody>
+    <div class="card h-100"><div class="card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-hourglass-split me-2 text-muted"></i>Waiting</span><span class="status-badge status-waiting">{{ waiting|length }}</span></div>
       {% for e in waiting %}
-      <tr>
-        <td><span class="queue-tag">#{{ '%03d'|format(e.queue_no) }}</span></td>
-        <td>{{ e.customer_name or 'Walk-in' }}<div class="small text-muted">{{ e.service_name or 'No service chosen' }}</div></td>
-        <td class="text-end text-nowrap">
+      <div class="queue-item">
+        <span class="queue-tag">#{{ '%03d'|format(e.queue_no) }}</span>
+        <div class="queue-info">
+          <div class="fw-semibold">{{ e.customer_name or 'Walk-in' }}</div>
+          <div class="small text-muted">{{ e.service_name or 'No service chosen' }}{% if e.created_at %} &middot; <i class="bi bi-clock"></i> {{ e.created_at.strftime('%I:%M %p') }}{% endif %}</div>
+        </div>
+        <div class="queue-actions">
           <form class="d-inline-flex gap-1" method="post" action="{{ url_for('queue_status', entry_id=e.id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="status" value="Serving">
-            <select class="form-select form-select-sm" name="barber_id" required>
+            <select class="form-select form-select-sm" name="barber_id" required aria-label="Barber">
               <option value="">Barber</option>
               {% for b in barbers %}<option value="{{ b.id }}" {{ 'selected' if b.id == e.barber_id }}>{{ b.name }}</option>{% endfor %}
             </select>
@@ -71,21 +75,22 @@
           <form class="d-inline js-confirm" data-confirm="Cancel this queue number?" method="post" action="{{ url_for('queue_status', entry_id=e.id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="status" value="Cancelled">
-            <button class="btn btn-sm btn-outline-danger">Cancel</button>
+            <button class="btn btn-sm btn-outline-danger btn-icon" title="Cancel" aria-label="Cancel"><i class="bi bi-x-lg"></i></button>
           </form>
-        </td>
-      </tr>
-      {% else %}<tr><td class="text-center text-muted py-4">The queue is empty.</td></tr>{% endfor %}
-      </tbody>
-    </table></div></div>
+        </div>
+      </div>
+      {% else %}<div class="empty-state"><i class="bi bi-emoji-smile"></i>The queue is empty.</div>{% endfor %}
+    </div>
   </div>
 </div>
 
 {% if finished %}
-<div class="card shadow-sm mt-4"><div class="card-header">Finished today ({{ finished|length }})</div>
-<div class="table-responsive"><table class="table table-sm mb-0">
+<div class="card mt-4"><div class="card-header"><i class="bi bi-clock-history me-2 text-muted"></i>Finished today ({{ finished|length }})</div>
+<div class="table-responsive"><table class="table table-clean">
+  <thead><tr><th>No.</th><th>Customer</th><th>Barber</th><th class="text-end">Status</th></tr></thead>
   <tbody>{% for e in finished %}
-    <tr><td>#{{ '%03d'|format(e.queue_no) }}</td><td>{{ e.customer_name or 'Walk-in' }}</td><td>{{ e.barber_name or '-' }}</td><td class="text-end">{{ e.status }}</td></tr>
+    <tr><td>#{{ '%03d'|format(e.queue_no) }}</td><td>{{ e.customer_name or 'Walk-in' }}</td><td>{{ e.barber_name or '-' }}</td>
+        <td class="text-end"><span class="status-badge status-{{ e.status|lower }}">{{ e.status }}</span></td></tr>
   {% endfor %}</tbody>
 </table></div></div>
 {% endif %}

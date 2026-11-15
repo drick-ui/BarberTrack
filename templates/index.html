@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<section class="hero rounded-3 text-center mb-4">
-  <div class="container">
-    <h1 class="display-5 fw-bold">Gunting <span class="accent">Master</span></h1>
-    <p class="lead">BarberTrack: Barbershop financial record and commission tracking system.</p>
-    {% if registration_open %}<a class="btn btn-brand btn-lg me-2" href="{{ url_for('register') }}">Set up owner account</a>{% endif %}
-    <a class="btn btn-outline-light btn-lg" href="{{ url_for('login') }}">Owner Login</a>
-  </div>
+<section class="hero mb-4">
+  <img class="hero-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="BarberTrack logo">
+  <h1 class="display-5 fw-bold font-display">Gunting <span class="accent">Master</span></h1>
+  <p class="lead mb-4">BarberTrack: barbershop financial records, commissions, and walk-in queue in one place.</p>
+  {% if registration_open %}<a class="btn btn-brand btn-lg me-2" href="{{ url_for('register') }}">Set up owner account</a>{% endif %}
+  <a class="btn btn-outline-light btn-lg" href="{{ url_for('login') }}"><i class="bi bi-shield-lock me-1"></i>Owner Login</a>
 </section>
-<div class="row g-3 text-center">
-  <div class="col-md-4"><div class="card h-100 p-3"><h5>Record Sales</h5><p class="mb-0">Log every haircut and payment quickly and accurately.</p></div></div>
-  <div class="col-md-4"><div class="card h-100 p-3"><h5>Auto Commission</h5><p class="mb-0">Barber commission and the shop's share are computed automatically.</p></div></div>
-  <div class="col-md-4"><div class="card h-100 p-3"><h5>Daily Reports</h5><p class="mb-0">See today's and this month's sales on the dashboard.</p></div></div>
+<div class="row g-3">
+  <div class="col-md-6 col-lg-3"><div class="card feature-card"><div class="stat-icon"><i class="bi bi-receipt"></i></div><h5>Record Sales</h5><p class="text-muted mb-0">Log every haircut and payment quickly and accurately.</p></div></div>
+  <div class="col-md-6 col-lg-3"><div class="card feature-card"><div class="stat-icon green"><i class="bi bi-percent"></i></div><h5>Auto Commission</h5><p class="text-muted mb-0">Barber commission and the shop's share are computed automatically.</p></div></div>
+  <div class="col-md-6 col-lg-3"><div class="card feature-card"><div class="stat-icon blue"><i class="bi bi-people"></i></div><h5>Walk-in Queue</h5><p class="text-muted mb-0">Keep customers in order and finish them only after they pay.</p></div></div>
+  <div class="col-md-6 col-lg-3"><div class="card feature-card"><div class="stat-icon dark"><i class="bi bi-bar-chart-line"></i></div><h5>Daily Reports</h5><p class="text-muted mb-0">See today's and this month's sales on the dashboard.</p></div></div>
 </div>
 {% endblock %}

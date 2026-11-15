@@ -1,35 +1,86 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h3 mb-0">Dashboard</h1>
-  <a class="btn btn-brand" href="{{ url_for('transactions_add') }}">+ New Transaction</a>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ greeting }}, {{ current_user.name.split(' ')[0] }}</h1>
+    <p class="page-sub">{{ now.strftime('%A, %B %d, %Y') }}</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-secondary" href="{{ url_for('queue_page') }}"><i class="bi bi-people me-1"></i>Queue</a>
+    <a class="btn btn-brand" href="{{ url_for('transactions_add') }}"><i class="bi bi-plus-lg me-1"></i>New Transaction</a>
+  </div>
 </div>
-<h2 class="h6 text-muted">TODAY</h2>
-<div class="row g-3 mb-4">
-  <div class="col-6 col-lg-3"><div class="card stat-card shadow-sm p-3"><div>Total Sales</div><div class="stat-value">₱{{ '{:,.2f}'.format(today.sales) }}</div></div></div>
-  <div class="col-6 col-lg-3"><div class="card stat-card shadow-sm p-3"><div>Barber Commissions</div><div class="stat-value">₱{{ '{:,.2f}'.format(today.commission) }}</div></div></div>
-  <div class="col-6 col-lg-3"><div class="card stat-card shadow-sm p-3"><div>Shop Share</div><div class="stat-value">₱{{ '{:,.2f}'.format(today.shop) }}</div></div></div>
-  <div class="col-6 col-lg-3"><div class="card stat-card shadow-sm p-3"><div>Haircuts / Services</div><div class="stat-value">{{ today.cuts }}</div></div></div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-xl-3"><div class="card stat-card"><div class="d-flex justify-content-between align-items-start">
+    <div><div class="stat-label">Sales today</div><div class="stat-value">₱{{ '{:,.2f}'.format(today.sales) }}</div></div>
+    <div class="stat-icon"><i class="bi bi-cash-coin"></i></div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card stat-card"><div class="d-flex justify-content-between align-items-start">
+    <div><div class="stat-label">Barber commissions</div><div class="stat-value">₱{{ '{:,.2f}'.format(today.commission) }}</div></div>
+    <div class="stat-icon blue"><i class="bi bi-percent"></i></div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card stat-card"><div class="d-flex justify-content-between align-items-start">
+    <div><div class="stat-label">Shop share</div><div class="stat-value">₱{{ '{:,.2f}'.format(today.shop) }}</div></div>
+    <div class="stat-icon green"><i class="bi bi-shop"></i></div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card stat-card"><div class="d-flex justify-content-between align-items-start">
+    <div><div class="stat-label">Transactions</div><div class="stat-value">{{ today.cuts }}</div></div>
+    <div class="stat-icon dark"><i class="bi bi-receipt"></i></div></div></div></div>
 </div>
-<h2 class="h6 text-muted">THIS MONTH</h2>
-<div class="row g-3 mb-4">
-  <div class="col-md-4"><div class="card stat-card shadow-sm p-3"><div>Sales</div><div class="stat-value">₱{{ '{:,.2f}'.format(month.sales) }}</div></div></div>
-  <div class="col-md-4"><div class="card stat-card shadow-sm p-3"><div>Commissions</div><div class="stat-value">₱{{ '{:,.2f}'.format(month.commission) }}</div></div></div>
-  <div class="col-md-4"><div class="card stat-card shadow-sm p-3"><div>Shop Share</div><div class="stat-value">₱{{ '{:,.2f}'.format(month.shop) }}</div></div></div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-8"><div class="card h-100">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-bar-chart-line me-2 text-muted"></i>Sales: last 7 days</span>
+      <span class="small text-muted">Total ₱{{ '{:,.2f}'.format(week_total) }}</span>
+    </div>
+    <div class="card-body">
+      <svg class="chart-svg" viewBox="0 0 280 124" role="img" aria-label="Bar chart of sales for the last 7 days">
+        <line class="chart-grid" x1="0" x2="280" y1="100" y2="100"/>
+        {% for d in week %}
+          {% set x = 8 + loop.index0 * 38 %}
+          {% set h = [d.pct * 0.9, 3]|max %}
+          <rect class="chart-bar{% if d.is_today %} today{% endif %}{% if d.sales == 0 %} zero{% endif %}" x="{{ x }}" y="{{ 100 - h }}" width="26" height="{{ h }}" rx="3">
+            <title>{{ d.full }}: ₱{{ '{:,.2f}'.format(d.sales) }}</title>
+          </rect>
+          <text class="chart-label" x="{{ x + 13 }}" y="116">{{ d.label }}</text>
+        {% endfor %}
+      </svg>
+    </div>
+  </div></div>
+  <div class="col-lg-4">
+    <div class="card mb-3"><div class="card-header"><i class="bi bi-calendar3 me-2 text-muted"></i>This month</div>
+      <div class="card-body py-2">
+        <div class="mini-stat"><span class="text-muted">Sales</span><strong>₱{{ '{:,.2f}'.format(month.sales) }}</strong></div>
+        <div class="mini-stat"><span class="text-muted">Commissions</span><strong>₱{{ '{:,.2f}'.format(month.commission) }}</strong></div>
+        <div class="mini-stat"><span class="text-muted">Shop share</span><strong>₱{{ '{:,.2f}'.format(month.shop) }}</strong></div>
+      </div></div>
+    <div class="card"><div class="card-header"><i class="bi bi-people me-2 text-muted"></i>Queue now</div>
+      <div class="card-body py-2">
+        <div class="mini-stat"><span class="text-muted">Waiting</span><span class="status-badge status-waiting">{{ queue_counts.waiting }}</span></div>
+        <div class="mini-stat"><span class="text-muted">Being served</span><span class="status-badge status-serving">{{ queue_counts.serving }}</span></div>
+        <a class="btn btn-outline-secondary btn-sm w-100 mt-2" href="{{ url_for('queue_page') }}">Open queue</a>
+      </div></div>
+  </div>
 </div>
+
 <div class="row g-3">
-  <div class="col-lg-5"><div class="card shadow-sm"><div class="card-header">Barbers today</div>
-    <div class="table-responsive"><table class="table mb-0">
+  <div class="col-lg-5"><div class="card h-100"><div class="card-header"><i class="bi bi-scissors me-2 text-muted"></i>Barbers today</div>
+    {% if barbers %}
+    <div class="table-responsive"><table class="table table-clean">
       <thead><tr><th>Barber</th><th>Cuts</th><th>Sales</th><th>Commission</th></tr></thead>
-      <tbody>{% for b in barbers %}<tr><td>{{ b.name }}</td><td>{{ b.cuts }}</td><td>₱{{ '{:,.2f}'.format(b.sales) }}</td><td>₱{{ '{:,.2f}'.format(b.commission) }}</td></tr>
-      {% else %}<tr><td colspan="4" class="text-center text-muted">No records today.</td></tr>{% endfor %}</tbody>
-    </table></div></div></div>
-  <div class="col-lg-7"><div class="card shadow-sm"><div class="card-header">Recent transactions</div>
-    <div class="table-responsive"><table class="table mb-0">
+      <tbody>{% for b in barbers %}<tr><td>{{ b.name }}</td><td>{{ b.cuts }}</td><td>₱{{ '{:,.2f}'.format(b.sales) }}</td><td>₱{{ '{:,.2f}'.format(b.commission) }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<div class="empty-state"><i class="bi bi-scissors"></i>No records today.</div>{% endif %}
+  </div></div>
+  <div class="col-lg-7"><div class="card h-100"><div class="card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-receipt me-2 text-muted"></i>Recent transactions</span>
+      <a class="small" href="{{ url_for('transactions_list') }}">View all</a></div>
+    {% if recent %}
+    <div class="table-responsive"><table class="table table-clean">
       <thead><tr><th>Date</th><th>Barber</th><th>Service</th><th>Amount</th></tr></thead>
-      <tbody>{% for t in recent %}<tr><td>{{ t.txn_date.strftime('%b %d %I:%M %p') }}</td><td>{{ t.barber_name }}</td><td>{{ t.service_name }}</td><td>₱{{ '{:,.2f}'.format(t.amount) }}</td></tr>
-      {% else %}<tr><td colspan="4" class="text-center text-muted">No transactions yet.</td></tr>{% endfor %}</tbody>
-    </table></div></div></div>
+      <tbody>{% for t in recent %}<tr><td>{{ t.txn_date.strftime('%b %d, %I:%M %p') }}</td><td>{{ t.barber_name }}</td><td>{{ t.service_name }}{% if t.product_label %} <span class="text-muted">+ {{ t.product_label }}</span>{% endif %}</td><td>₱{{ '{:,.2f}'.format(t.amount) }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<div class="empty-state"><i class="bi bi-receipt"></i>No transactions yet.</div>{% endif %}
+  </div></div>
 </div>
 {% endblock %}

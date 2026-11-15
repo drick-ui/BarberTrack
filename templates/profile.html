@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Profile{% endblock %}
 {% block content %}
-<h1 class="h3 mb-3">My Profile</h1>
+<div class="page-header"><div><h1 class="page-title">My Profile</h1><p class="page-sub">Update your details, photo, and password.</p></div></div>
 <div class="row g-4">
-  <div class="col-md-6"><div class="card shadow-sm"><div class="card-body">
-    <h2 class="h5">Account details</h2>
+  <div class="col-lg-6"><div class="card h-100"><div class="card-body p-4">
+    <h2 class="h5 mb-3"><i class="bi bi-person-vcard me-2 text-muted"></i>Account details</h2>
     <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="action" value="details">
@@ -14,19 +14,19 @@
       </div>
       <div class="mb-3"><label class="form-label">Name</label><input class="form-control" name="name" value="{{ current_user.name }}" required></div>
       <div class="mb-3"><label class="form-label">Email</label><input class="form-control" type="email" name="email" value="{{ current_user.email }}" required></div>
-      <div class="mb-3"><label class="form-label">Profile photo</label><input class="form-control" type="file" name="photo" accept="image/*"></div>
-      <button class="btn btn-brand">Save changes</button>
+      <div class="mb-3"><label class="form-label">Profile photo</label><input class="form-control" type="file" name="photo" accept="image/*"><div class="form-text">PNG, JPG, or WEBP, up to 2 MB.</div></div>
+      <button class="btn btn-brand"><i class="bi bi-check2 me-1"></i>Save changes</button>
     </form>
   </div></div></div>
-  <div class="col-md-6"><div class="card shadow-sm"><div class="card-body">
-    <h2 class="h5">Change password</h2>
+  <div class="col-lg-6"><div class="card h-100"><div class="card-body p-4">
+    <h2 class="h5 mb-3"><i class="bi bi-key me-2 text-muted"></i>Change password</h2>
     <form method="post" class="needs-validation" novalidate>
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="action" value="password">
-      <div class="mb-3"><label class="form-label">Current password</label><input class="form-control" type="password" name="current" required></div>
-      <div class="mb-3"><label class="form-label">New password</label><input class="form-control" type="password" name="new_password" minlength="8" required></div>
-      <div class="mb-3"><label class="form-label">Confirm new password</label><input class="form-control" type="password" name="confirm" required></div>
-      <button class="btn btn-brand">Update password</button>
+      <div class="mb-3"><label class="form-label">Current password</label><input class="form-control" type="password" name="current" autocomplete="current-password" required></div>
+      <div class="mb-3"><label class="form-label">New password</label><input class="form-control" type="password" name="new_password" minlength="8" autocomplete="new-password" required><div class="form-text">At least 8 characters, with letters and numbers.</div></div>
+      <div class="mb-3"><label class="form-label">Confirm new password</label><input class="form-control" type="password" name="confirm" autocomplete="new-password" required></div>
+      <button class="btn btn-brand"><i class="bi bi-shield-check me-1"></i>Update password</button>
     </form>
   </div></div></div>
 </div>
