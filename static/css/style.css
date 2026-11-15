@@ -1,0 +1,50 @@
+/* Lahat ng design/styling ay nandito. Walang inline style sa HTML. */
+:root {
+  --bt-dark: #1f2933;
+  --bt-gold: #c9a227;
+  --bt-gold-dark: #a8851a;
+  --bt-light: #f6f4ef;
+}
+body { background: var(--bt-light); color: var(--bt-dark); min-height: 100vh; display: flex; flex-direction: column; }
+main { flex: 1; }
+.navbar-bt { background: var(--bt-dark); }
+.navbar-bt .nav-link, .navbar-bt .navbar-brand { color: #fff; }
+.navbar-bt .nav-link:hover { color: var(--bt-gold); }
+.brand-logo { height: 44px; width: auto; margin-right: .6rem; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.avatar-lg { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--bt-gold); }
+.btn-brand { background: var(--bt-gold); border-color: var(--bt-gold); color: #fff; }
+.btn-brand:hover { background: var(--bt-gold-dark); border-color: var(--bt-gold-dark); color: #fff; }
+.hero { background: linear-gradient(135deg, var(--bt-dark), #3e4c59); color: #fff; padding: 5rem 0; }
+.hero .accent { color: var(--bt-gold); }
+.stat-card { border: 0; border-left: 5px solid var(--bt-gold); }
+.stat-value { font-size: 1.7rem; font-weight: 700; }
+.auth-card { max-width: 440px; margin: 3rem auto; }
+.footer-bt { background: var(--bt-dark); color: #cbd2d9; padding: 1rem 0; font-size: .9rem; }
+
+.otp-input { letter-spacing: .6rem; font-weight: 700; }
+
+/* Layout: sidebar sa kaliwa */
+.app-shell { display: flex; flex: 1; }
+.content { flex: 1; min-width: 0; }
+.sidebar { --bs-offcanvas-width: 240px; --bs-offcanvas-bg: var(--bt-dark); --bs-offcanvas-color: #fff; }
+@media (min-width: 992px) {
+  .sidebar { flex: 0 0 230px; width: 230px; background: var(--bt-dark); }
+}
+.sidebar-nav { padding: 1rem .75rem; gap: .25rem; }
+.sidebar-nav .nav-link { color: #cbd2d9; border-radius: .5rem; padding: .65rem .9rem; }
+.sidebar-nav .nav-link i { margin-right: .6rem; }
+.sidebar-nav .nav-link:hover { background: rgba(255, 255, 255, .08); color: #fff; }
+.sidebar-nav .nav-link.active { background: var(--bt-gold); color: #fff; font-weight: 600; }
+
+/* Background na larawan para sa login / register / OTP */
+body.auth-bg .app-shell {
+  background: linear-gradient(rgba(31, 41, 51, .70), rgba(31, 41, 51, .70)),
+              url("../img/auth-bg.jpg") center / cover no-repeat;
+  align-items: center;
+}
+body.auth-bg .auth-card { background: rgba(255, 255, 255, .96); }
+
+/* Queue */
+.queue-tag { display: inline-block; min-width: 4rem; padding: .25rem .6rem; border-radius: .5rem;
+             background: var(--bt-dark); color: var(--bt-gold); font-weight: 700; text-align: center; }

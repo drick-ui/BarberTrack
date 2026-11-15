@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card auth-card shadow-sm"><div class="card-body p-4">
+  <h1 class="h4 mb-3">{{ title }}</h1>
+  <form method="post" class="needs-validation" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if queue_id %}<input type="hidden" name="queue_id" value="{{ queue_id }}">{% endif %}
+    {% for f in fields %}
+    <div class="mb-3">
+      <label class="form-label" for="{{ f.name }}">{{ f.label }}</label>
+      {% if f.type == 'select' %}
+        <select class="form-select" id="{{ f.name }}" name="{{ f.name }}" {{ 'required' if f.get('required', True) }}>
+          <option value="">-- choose --</option>
+          {% for v, l, p in f.choices %}
+          <option value="{{ v }}" data-price="{{ p }}" {{ 'selected' if v|string == f.value|string }}>{{ l }}</option>
+          {% endfor %}
+        </select>
+      {% else %}
+        <input class="form-control" id="{{ f.name }}" name="{{ f.name }}" type="{{ f.type }}"
+               value="{{ f.value if f.value is not none else '' }}"
+               {% if f.type == 'number' %}step="{{ f.step or '0.01' }}" min="0" {% if f.max %}max="{{ f.max }}"{% endif %}{% endif %}
+               {{ 'required' if f.get('required', True) }}>
+      {% endif %}
+      <div class="invalid-feedback">Please fill out this field correctly.</div>
+    </div>
+    {% endfor %}
+    <button class="btn btn-brand">Save</button>
+    <a class="btn btn-outline-secondary" href="{{ back }}">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}

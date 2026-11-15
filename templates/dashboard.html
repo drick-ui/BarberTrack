@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Dashboard</h1>
+  <a class="btn btn-brand" href="{{ url_for('transactions_add') }}">+ New Transaction</a>
+</div>
+<h2 class="h6 text-muted">TODAY</h2>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="card stat-card shadow-sm p-3"><div>Total Sales</div><div class="stat-value">₱{{ '{:,.2f}'.format(today.sales) }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="card stat-card shadow-sm p-3"><div>Barber Commissions</div><div class="stat-value">₱{{ '{:,.2f}'.format(today.commission) }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="card stat-card shadow-sm p-3"><div>Shop Share</div><div class="stat-value">₱{{ '{:,.2f}'.format(today.shop) }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="card stat-card shadow-sm p-3"><div>Haircuts / Services</div><div class="stat-value">{{ today.cuts }}</div></div></div>
+</div>
+<h2 class="h6 text-muted">THIS MONTH</h2>
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><div class="card stat-card shadow-sm p-3"><div>Sales</div><div class="stat-value">₱{{ '{:,.2f}'.format(month.sales) }}</div></div></div>
+  <div class="col-md-4"><div class="card stat-card shadow-sm p-3"><div>Commissions</div><div class="stat-value">₱{{ '{:,.2f}'.format(month.commission) }}</div></div></div>
+  <div class="col-md-4"><div class="card stat-card shadow-sm p-3"><div>Shop Share</div><div class="stat-value">₱{{ '{:,.2f}'.format(month.shop) }}</div></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-5"><div class="card shadow-sm"><div class="card-header">Barbers today</div>
+    <div class="table-responsive"><table class="table mb-0">
+      <thead><tr><th>Barber</th><th>Cuts</th><th>Sales</th><th>Commission</th></tr></thead>
+      <tbody>{% for b in barbers %}<tr><td>{{ b.name }}</td><td>{{ b.cuts }}</td><td>₱{{ '{:,.2f}'.format(b.sales) }}</td><td>₱{{ '{:,.2f}'.format(b.commission) }}</td></tr>
+      {% else %}<tr><td colspan="4" class="text-center text-muted">No records today.</td></tr>{% endfor %}</tbody>
+    </table></div></div></div>
+  <div class="col-lg-7"><div class="card shadow-sm"><div class="card-header">Recent transactions</div>
+    <div class="table-responsive"><table class="table mb-0">
+      <thead><tr><th>Date</th><th>Barber</th><th>Service</th><th>Amount</th></tr></thead>
+      <tbody>{% for t in recent %}<tr><td>{{ t.txn_date.strftime('%b %d %I:%M %p') }}</td><td>{{ t.barber_name }}</td><td>{{ t.service_name }}</td><td>₱{{ '{:,.2f}'.format(t.amount) }}</td></tr>
+      {% else %}<tr><td colspan="4" class="text-center text-muted">No transactions yet.</td></tr>{% endfor %}</tbody>
+    </table></div></div></div>
+</div>
+{% endblock %}
